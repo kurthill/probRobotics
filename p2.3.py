@@ -1,11 +1,11 @@
-# Calculate the probability distribution of the weather of any given 
+# Calculate the probability distribution of the weather of any given
 # day given the transition probabilities:
 #
 #                           Tomorrow is
 #                       sunny   cloudy  rainy
 #              sunny     0.8      0.2     0
 # today is     cloudy    0.4      0.4    0.2
-#              rainy     0.2      0.6    0.2i
+#              rainy     0.2      0.6    0.2
 #
 # and sensor data with accuracy given by:
 #
@@ -15,13 +15,38 @@
 # Actual weather  cloudy    0.3     0.7     0
 #                 rainy      0       0      1
 
-def filter( bel ):
-    den = bel + 0.3333*(1-bel)
-    return bel / den
+trans = ((0.8, 0.2, 0), (0.4, 0.4, 0.2), (0.2, 0.6, 0.2))
+sense = ((0.6, 0.4, 0), (0.3, 0.7, 0), (0, 0, 1))
 
 
-p = 0.01
-print('0: {}'.format(p))
-for i in range(1,11):
-    p = filter(p)
-    print('{}: {}'.format(i,p))
+def filter(bel, z):
+
+    bbel = [0, 0, 0]
+    for x in range(len(bel)):
+
+        # print('x = {}'.format(x))
+        for xi in range(len(bel)):
+            # (print('xi = {}: {} * {} = {}'.format(xi, trans[xi][x],
+            #                                       bel[xi],
+            #                                       trans[xi][x] * bel[xi])))
+            bbel[x] += trans[xi][x] * bel[xi]
+            # print(bbel)
+
+        # (print('x = {}: {} * {} = {}'.format(x, sense[x][z],
+        #                                      bbel[x],
+        #                                      sense[z][x] * bbel[x])))
+        bbel[x] = sense[x][z] * bbel[x]
+        # print(bbel)
+
+    s = sum(bbel)
+    bbel = [x / s for x in bbel]
+    return bbel
+
+
+b = [1, 0, 0]
+z = (1, 1, 2, 0)
+# z = (1, 1)
+
+for z in z:
+    b = filter(b, z)
+    print(b)
